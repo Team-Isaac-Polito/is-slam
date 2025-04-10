@@ -27,29 +27,27 @@
 //=================================================================================================
 
 #include "hector_geotiff/geotiff_writer.h"
-#include <ros/console.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <QFile>
 #include <QImageWriter>
 #include <QPainter>
-//#include <QtCore/QDateTime>
 #include <QTime>
 #include <QTextStream>
 #include <QFontDatabase>
 
-#include <ros/package.h>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #if  __cplusplus < 201703L
-	#include <experimental/filesystem>
-	namespace fs = std::experimental::filesystem;
+    #include <experimental/filesystem>
+    namespace fs = std::experimental::filesystem;
 #else
-	#include <filesystem>
-	namespace fs = std::filesystem;
+    #include <filesystem>
+    namespace fs = std::filesystem;
 #endif
 
 namespace hector_geotiff
 {
-
 
 GeotiffWriter::GeotiffWriter( bool useCheckerboardCacheIn )
   : useCheckerboardCache( useCheckerboardCacheIn )
@@ -65,15 +63,15 @@ GeotiffWriter::GeotiffWriter( bool useCheckerboardCacheIn )
   strcpy( fake_argv[1], "-platform" );
   strcpy( fake_argv[2], "offscreen" ); // Set the env QT_DEBUG_PLUGINS to 1 to see available platforms
 
-  ROS_INFO("Creating application with offscreen platform.");
+  RCLCPP_INFO(rclcpp::get_logger("GeotiffWriter"), "Creating application with offscreen platform.");
   //Create a QApplication cause otherwise drawing text will crash
   app = new QApplication( fake_argc, fake_argv );
   delete[] fake_argv[0];
   delete[] fake_argv[1];
   delete[] fake_argv[2];
-  ROS_INFO("Created application");
+  RCLCPP_INFO(rclcpp::get_logger("GeotiffWriter"), "Created application");
 
-  std::string font_path = ros::package::getPath( "hector_geotiff" ) + "/fonts/Roboto-Regular.ttf";
+  std::string font_path = ament_index_cpp::get_package_share_directory("hector_geotiff") + "/fonts/Roboto-Regular.ttf";
   int id = QFontDatabase::addApplicationFont( QString::fromStdString( font_path ));
   font_family_ = QFontDatabase::applicationFontFamilies( id ).at( 0 );
 
@@ -92,8 +90,6 @@ void GeotiffWriter::setMapFileName( const std::string &mapFileName )
 
   if ( use_utc_time_suffix_ )
   {
-    //QDateTime now (QDateTime::currentDateTimeUtc());
-    //std::string current_time_string = now.toString(Qt::ISODate).toStdString();
     QTime now( QTime::currentTime());
     std::string current_time_string = now.toString( Qt::ISODate ).toStdString();
 
@@ -111,8 +107,7 @@ void GeotiffWriter::setUseUtcTimeSuffix( bool useSuffix )
   use_utc_time_suffix_ = useSuffix;
 }
 
-
-bool GeotiffWriter::setupTransforms( const nav_msgs::OccupancyGrid &map )
+bool GeotiffWriter::setupTransforms( const nav_msgs::msg::OccupancyGrid &map )
 {
   resolution = static_cast<float>(map.info.resolution);
   origin = Eigen::Vector2f( map.info.origin.position.x, map.info.origin.position.y );
@@ -128,13 +123,12 @@ bool GeotiffWriter::setupTransforms( const nav_msgs::OccupancyGrid &map )
 
   if ( !HectorMapTools::getMapExtends( map, minCoordsMap, maxCoordsMap ))
   {
-    ROS_INFO( "Cannot determine map extends!" );
+    RCLCPP_INFO(rclcpp::get_logger("GeotiffWriter"), "Cannot determine map extends!");
     return false;
   }
 
   sizeMap = Eigen::Vector2i( maxCoordsMap - minCoordsMap );
   sizeMapf = ((maxCoordsMap - minCoordsMap).cast<float>());
-
 
   rightBottomMarginMeters = Eigen::Vector2f( 1.0f, 1.0f );
   rightBottomMarginPixelsf = Eigen::Vector2f( rightBottomMarginMeters.array() * pixelsPerGeoTiffMeter );
@@ -143,34 +137,19 @@ bool GeotiffWriter::setupTransforms( const nav_msgs::OccupancyGrid &map )
   leftTopMarginMeters = Eigen::Vector2f( 3.0f, 3.0f );
 
   totalMeters = (rightBottomMarginMeters + sizeMapf * map.info.resolution + leftTopMarginMeters);
-  //std::cout << "\n" << totalMeters;
 
   totalMeters.x() = ceil( totalMeters.x());
   totalMeters.y() = ceil( totalMeters.y());
-  //std::cout << "\n" << totalMeters;
 
   geoTiffSizePixels = ((totalMeters.array() * pixelsPerGeoTiffMeter).cast<int>());
 
-
   mapOrigInGeotiff = (rightBottomMarginPixelsf);
   mapEndInGeotiff = (rightBottomMarginPixelsf + sizeMapf * resolutionFactorf);
-  //std::cout << "\n mapOrig\n" << mapOrigInGeotiff;
-  //std::cout << "\n mapOrig\n" << mapEndInGeotiff;
 
   world_map_transformer_.setTransforms( map );
 
   map_geo_transformer_.setTransformsBetweenCoordSystems( mapOrigInGeotiff, mapEndInGeotiff, minCoordsMap.cast<float>(),
                                                          maxCoordsMap.cast<float>());
-
-  /*
-  Eigen::Vector2f temp_zero_map_g (map_geo_transformer_.getC2Coords(Eigen::Vector2f::Zero()));
-
-  Eigen::Vector2f temp_zero_map_g_floor (floor(temp_zero_map_g.x()), floor(temp_zero_map_g.x()));
-
-  Eigen::Vector2f diff (temp_zero_map_g - temp_zero_map_g_floor);
-
-  map*/
-
 
   Eigen::Vector2f p1_w( Eigen::Vector2f::Zero());
   Eigen::Vector2f p2_w( Eigen::Vector2f( 100.0f, 100.0f ));
@@ -319,7 +298,7 @@ void GeotiffWriter::drawBackgroundCheckerboard()
   }
 }
 
-void GeotiffWriter::drawMap( const nav_msgs::OccupancyGrid &map, bool draw_explored_space_grid )
+void GeotiffWriter::drawMap( const nav_msgs::msg::OccupancyGrid &map, bool draw_explored_space_grid )
 {
   QPainter qPainter( &image );
 
@@ -546,7 +525,7 @@ void GeotiffWriter::writeGeotiffImage(bool completed)
     if(!fs::exists(complete_file_string.c_str())) {
       fs::create_directory(complete_file_string.c_str(), error);
       if (error) {
-        ROS_ERROR("Can't create autosave folder");
+        RCLCPP_ERROR(rclcpp::get_logger("GeotiffWriter"), "Can't create autosave folder");
         return;
       }
     }
@@ -555,7 +534,7 @@ void GeotiffWriter::writeGeotiffImage(bool completed)
     if(!fs::exists(complete_file_string.c_str())) {
       fs::create_directory(complete_file_string.c_str(), error);
       if (error) {
-        ROS_ERROR("Can't create folder in autosave");
+        RCLCPP_ERROR(rclcpp::get_logger("GeotiffWriter"), "Can't create folder in autosave");
         return;
       }
     }
@@ -608,12 +587,12 @@ void GeotiffWriter::writeGeotiffImage(bool completed)
 
   if ( !success )
   {
-    ROS_INFO( "Writing image with file %s failed with error %s", complete_file_string.c_str(),
+    RCLCPP_INFO(rclcpp::get_logger("GeotiffWriter"), "Writing image with file %s failed with error %s", complete_file_string.c_str(),
               imageWriter.errorString().toStdString().c_str());
   }
   else
   {
-    ROS_INFO( "Successfully wrote geotiff to %s", complete_file_string.c_str());
+    RCLCPP_INFO(rclcpp::get_logger("GeotiffWriter"), "Successfully wrote geotiff to %s", complete_file_string.c_str());
   }
 }
 
