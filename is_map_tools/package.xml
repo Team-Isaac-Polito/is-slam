@@ -7,13 +7,14 @@
     Currently consists of a single header.
   </description>
 
-  <maintainer email="meyer@fsr.tu-darmstadt.de">Johannes Meyer</maintainer>
+  <maintainer email="luca.depaola@studenti.polito.it">Luca De Paola</maintainer>
 
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/is_map_tools</url>
 
   <author email="kohlbrecher@sim.tu-darmstadt.de">Stefan Kohlbrecher</author>
+  <author email="luca.depaola@studenti.polito.it">Luca De Paola</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>nav_msgs</depend>

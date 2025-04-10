@@ -6,7 +6,7 @@
     is_nav_msgs contains messages sand services used in the is_slam stack.
   </description>
 
-  <maintainer email="meyer@fsr.tu-darmstadt.de">Johannes Meyer</maintainer>
+  <maintainer email="luca.depaola@studenti.polito.it">Luca De Paola</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -23,6 +23,7 @@
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
   <!-- Authors do not have to be maintianers, but could be -->
   <author email="kohlbrecher@sim.tu-darmstadt.de">Stefan Kohlbrecher</author>
+  <author email="luca.depaola@studenti.polito.it">Luca De Paola</author>
 
 
   <buildtool_depend>ament_cmake</buildtool_depend>
