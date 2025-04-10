@@ -1,25 +1,18 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(hector_map_tools)
+set(CMAKE_CXX_STANDARD 17)
 
-find_package(catkin REQUIRED COMPONENTS nav_msgs)
-
+find_package(ament_cmake REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS nav_msgs
-  DEPENDS EIGEN3
-)
-
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+install(
+  DIRECTORY include/
+  DESTINATION include/
   FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
 )
+
+ament_export_dependencies(nav_msgs Eigen3)
+ament_export_include_directories(include)
+
+ament_package()
