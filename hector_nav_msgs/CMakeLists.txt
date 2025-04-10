@@ -1,28 +1,21 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(hector_nav_msgs)
 
-find_package(catkin REQUIRED COMPONENTS nav_msgs geometry_msgs message_generation std_msgs)
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(builtin_interfaces REQUIRED)
 
+rosidl_generate_interfaces(
+  ${PROJECT_NAME}
+  "srv/GetDistanceToObstacle.srv"
+  "srv/GetRecoveryInfo.srv"
+  "srv/GetRobotTrajectory.srv"
+  "srv/GetSearchPosition.srv"
+  "srv/GetNormal.srv"
+  DEPENDENCIES std_msgs geometry_msgs nav_msgs builtin_interfaces
+) 
 
-#######################################
-## Declare ROS messages and services ##
-#######################################
-
-## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  GetDistanceToObstacle.srv
-  GetRecoveryInfo.srv
-  GetRobotTrajectory.srv
-  GetSearchPosition.srv
-  GetNormal.srv
-)
-
-generate_messages(
-  DEPENDENCIES
-  geometry_msgs nav_msgs std_msgs
-)
-
-catkin_package(
-  CATKIN_DEPENDS nav_msgs geometry_msgs message_runtime std_msgs
-)
+ament_package()

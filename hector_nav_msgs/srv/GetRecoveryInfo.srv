@@ -2,7 +2,7 @@
 # up to request_radius away from req_pose.
 #
 
-time request_time
+builtin_interfaces/Time request_time
 float64 request_radius 
 ---
 nav_msgs/Path trajectory_radius_entry_pose_to_req_pose
