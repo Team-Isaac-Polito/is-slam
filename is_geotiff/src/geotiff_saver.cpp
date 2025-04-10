@@ -26,6 +26,9 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
+// Modifications for ROS2 by Team ISAAC, Politecnico di Torino, 2025
+
+
 #include "is_geotiff/geotiff_writer.h"
 
 #include <cstdio>
