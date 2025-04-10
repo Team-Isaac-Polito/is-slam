@@ -1,63 +1,69 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(hector_geotiff)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-find_package(catkin REQUIRED COMPONENTS hector_map_tools hector_nav_msgs nav_msgs pluginlib roscpp std_msgs)
+find_package(ament_cmake REQUIRED)
+find_package(hector_map_tools REQUIRED)
+find_package(hector_nav_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
-
 find_package(Eigen3 REQUIRED)
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES geotiff_writer
-  CATKIN_DEPENDS hector_map_tools hector_nav_msgs nav_msgs pluginlib roscpp std_msgs
-  DEPENDS EIGEN3 Qt5Widgets
-)
 
 ###########
 ## Build ##
 ###########
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
+# 1. Library geotiff_writer
+add_library(geotiff_writer src/geotiff_writer/geotiff_writer.cpp)
+target_include_directories(geotiff_writer PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
   ${EIGEN3_INCLUDE_DIRS}
   ${Qt5Widgets_INCLUDE_DIRS}
 )
+target_link_libraries(geotiff_writer Qt5::Widgets stdc++fs)
+ament_target_dependencies(geotiff_writer
+  hector_map_tools
+  hector_nav_msgs
+  nav_msgs
+  pluginlib
+  rclcpp
+  std_msgs
+)
 
-add_library(geotiff_writer src/geotiff_writer/geotiff_writer.cpp)
-target_link_libraries(geotiff_writer ${catkin_LIBRARIES} Qt5::Widgets stdc++fs)
-add_dependencies(geotiff_writer ${catkin_EXPORTED_TARGETS})
 
+# 2. Executable geotiff_saver
 add_executable(geotiff_saver src/geotiff_saver.cpp)
 target_link_libraries(geotiff_saver geotiff_writer)
-add_dependencies(geotiff_saver ${catkin_EXPORTED_TARGETS})
 
 add_executable(geotiff_node src/geotiff_node.cpp)
 target_link_libraries(geotiff_node geotiff_writer)
-add_dependencies(geotiff_node ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-install(TARGETS geotiff_writer geotiff_saver geotiff_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# 1. Library geotiff_writer
+install(DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+install(TARGETS geotiff_writer
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
-)
+# 2. Executable geotiff_saver and geotiff_node
+install(TARGETS geotiff_saver geotiff_node
+  DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY fonts
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
 
+ament_package()
