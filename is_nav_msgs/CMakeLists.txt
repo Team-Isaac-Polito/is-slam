@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(hector_nav_msgs)
+project(is_nav_msgs)
 
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)

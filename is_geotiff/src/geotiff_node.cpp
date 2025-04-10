@@ -26,8 +26,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
-#include "hector_geotiff/geotiff_writer.h"
-#include "hector_geotiff/map_writer_plugin_interface.h"
+#include "is_geotiff/geotiff_writer.h"
+#include "is_geotiff/map_writer_plugin_interface.h"
 
 #include <cstdio>
 #include <rclcpp/rclcpp.hpp>
@@ -40,13 +40,13 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <nav_msgs/srv/get_map.hpp>
 #include <std_msgs/msg/string.hpp>
-#include <hector_nav_msgs/srv/get_robot_trajectory.hpp>
+#include <is_nav_msgs/srv/get_robot_trajectory.hpp>
 
 #include <QApplication>
 
 using namespace std;
 
-namespace hector_geotiff{
+namespace is_geotiff{
 /**
  * @brief Map generation node.
  */
@@ -81,7 +81,7 @@ public:
     if (use_map_topic_) {} else {
       map_service_client_ = this->create_client<nav_msgs::srv::GetMap>("map");
     }
-    path_service_client_ = this->create_client<hector_nav_msgs::srv::GetRobotTrajectory>("trajectory");
+    path_service_client_ = this->create_client<is_nav_msgs::srv::GetRobotTrajectory>("trajectory");
 
     double p_geotiff_save_period = 0.0;
     this->declare_parameter<double>("geotiff_save_period", 0.0);
@@ -100,8 +100,8 @@ public:
     boost::algorithm::split(plugin_list, p_plugin_list_, boost::is_any_of("\t "));
 
     if (!plugin_list.empty() && !plugin_list[0].empty()) {
-      plugin_loader_ = std::make_unique<pluginlib::ClassLoader<hector_geotiff::MapWriterPluginInterface>>(
-        "hector_geotiff", "hector_geotiff::MapWriterPluginInterface");
+      plugin_loader_ = std::make_unique<pluginlib::ClassLoader<is_geotiff::MapWriterPluginInterface>>(
+        "is_geotiff", "is_geotiff::MapWriterPluginInterface");
 
       for (const auto& plugin : plugin_list) {
         try {
@@ -228,12 +228,12 @@ private:
   bool use_map_topic_;
 
   rclcpp::Client<nav_msgs::srv::GetMap>::SharedPtr map_service_client_;
-  rclcpp::Client<hector_nav_msgs::srv::GetRobotTrajectory>::SharedPtr path_service_client_;
+  rclcpp::Client<is_nav_msgs::srv::GetRobotTrajectory>::SharedPtr path_service_client_;
 
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sys_cmd_sub_;
 
-  std::unique_ptr<pluginlib::ClassLoader<hector_geotiff::MapWriterPluginInterface>> plugin_loader_;
-  std::vector<std::shared_ptr<hector_geotiff::MapWriterPluginInterface>> plugin_vector_;
+  std::unique_ptr<pluginlib::ClassLoader<is_geotiff::MapWriterPluginInterface>> plugin_loader_;
+  std::vector<std::shared_ptr<is_geotiff::MapWriterPluginInterface>> plugin_vector_;
 
   GeotiffWriter geotiff_writer_;
 
@@ -248,7 +248,7 @@ int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<hector_geotiff::MapGenerator>();
+  auto node = std::make_shared<is_geotiff::MapGenerator>();
 
   rclcpp::spin(node);
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(hector_map_tools)
+project(is_map_tools)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(ament_cmake REQUIRED)

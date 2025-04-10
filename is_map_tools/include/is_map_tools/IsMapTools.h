@@ -26,8 +26,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
-#ifndef __HectorMapTools_h_
-#define __HectorMapTools_h_
+#ifndef __IsMapTools_h_
+#define __IsMapTools_h_
 
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <nav_msgs/msg/map_meta_data.hpp>
@@ -35,7 +35,7 @@
 #include <Eigen/Core>
 #include <memory>
 
-class HectorMapTools{
+class IsMapTools{
 public:
 
   template<typename ConcreteScalar>

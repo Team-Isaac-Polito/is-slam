@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
-project(hector_geotiff)
+project(is_geotiff)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(ament_cmake REQUIRED)
-find_package(hector_map_tools REQUIRED)
-find_package(hector_nav_msgs REQUIRED)
+find_package(is_map_tools REQUIRED)
+find_package(is_nav_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -27,8 +27,8 @@ target_include_directories(geotiff_writer PUBLIC
 )
 target_link_libraries(geotiff_writer Qt5::Widgets stdc++fs)
 ament_target_dependencies(geotiff_writer
-  hector_map_tools
-  hector_nav_msgs
+  is_map_tools
+  is_nav_msgs
   nav_msgs
   pluginlib
   rclcpp

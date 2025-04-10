@@ -26,7 +26,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
-#include "hector_geotiff/geotiff_writer.h"
+#include "is_geotiff/geotiff_writer.h"
 
 #include <cstdio>
 #include <rclcpp/rclcpp.hpp>
@@ -36,7 +36,7 @@
 
 using namespace std;
 
-namespace hector_geotiff{
+namespace is_geotiff{
 
 /**
  * @brief Map generation node.
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
     }
   }
 
-  auto node = std::make_shared<hector_geotiff::MapGenerator>(mapname);
+  auto node = std::make_shared<is_geotiff::MapGenerator>(mapname);
 
   rclcpp::spin(node);
 

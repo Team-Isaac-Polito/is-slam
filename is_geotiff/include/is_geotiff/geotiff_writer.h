@@ -40,7 +40,7 @@
 #include <QApplication>
 #include <QFont>
 
-#include <hector_map_tools/HectorMapTools.h>
+#include <is_map_tools/IsMapTools.h>
 
 #if  __cplusplus < 201703L
     #include <experimental/filesystem>
@@ -50,7 +50,7 @@
     namespace fs = std::filesystem;
 #endif
 
-namespace hector_geotiff{
+namespace is_geotiff{
 
 class GeotiffWriter : public MapWriterInterface
 {
@@ -122,9 +122,9 @@ protected:
   QString font_family_;
   QFont map_draw_font_;
 
-  HectorMapTools::CoordinateTransformer<float> world_map_transformer_;
-  HectorMapTools::CoordinateTransformer<float> map_geo_transformer_;
-  HectorMapTools::CoordinateTransformer<float> world_geo_transformer_;
+  IsMapTools::CoordinateTransformer<float> world_map_transformer_;
+  IsMapTools::CoordinateTransformer<float> map_geo_transformer_;
+  IsMapTools::CoordinateTransformer<float> world_geo_transformer_;
 
   nav_msgs::msg::MapMetaData cached_map_meta_data_;
 };

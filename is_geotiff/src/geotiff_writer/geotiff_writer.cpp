@@ -26,7 +26,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
-#include "hector_geotiff/geotiff_writer.h"
+#include "is_geotiff/geotiff_writer.h"
 #include <rclcpp/rclcpp.hpp>
 
 #include <QFile>
@@ -46,7 +46,7 @@
     namespace fs = std::filesystem;
 #endif
 
-namespace hector_geotiff
+namespace is_geotiff
 {
 
 GeotiffWriter::GeotiffWriter( bool useCheckerboardCacheIn )
@@ -71,7 +71,7 @@ GeotiffWriter::GeotiffWriter( bool useCheckerboardCacheIn )
   delete[] fake_argv[2];
   RCLCPP_INFO(rclcpp::get_logger("GeotiffWriter"), "Created application");
 
-  std::string font_path = ament_index_cpp::get_package_share_directory("hector_geotiff") + "/fonts/Roboto-Regular.ttf";
+  std::string font_path = ament_index_cpp::get_package_share_directory("is_geotiff") + "/fonts/Roboto-Regular.ttf";
   int id = QFontDatabase::addApplicationFont( QString::fromStdString( font_path ));
   font_family_ = QFontDatabase::applicationFontFamilies( id ).at( 0 );
 
@@ -121,7 +121,7 @@ bool GeotiffWriter::setupTransforms( const nav_msgs::msg::OccupancyGrid &map )
   minCoordsMap = Eigen::Vector2i::Zero();
   maxCoordsMap = Eigen::Vector2i( map.info.width, map.info.height );
 
-  if ( !HectorMapTools::getMapExtends( map, minCoordsMap, maxCoordsMap ))
+  if ( !IsMapTools::getMapExtends( map, minCoordsMap, maxCoordsMap ))
   {
     RCLCPP_INFO(rclcpp::get_logger("GeotiffWriter"), "Cannot determine map extends!");
     return false;

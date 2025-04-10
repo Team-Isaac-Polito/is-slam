@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>hector_map_tools</name>
+  <name>is_map_tools</name>
   <version>0.5.2</version>
   <description>
-    hector_map_tools contains some functions related to accessing information from OccupancyGridMap maps.
+    is_map_tools contains some functions related to accessing information from OccupancyGridMap maps.
     Currently consists of a single header.
   </description>
 
@@ -11,7 +11,7 @@
 
   <license>BSD</license>
 
-  <url type="website">http://ros.org/wiki/hector_map_tools</url>
+  <url type="website">http://ros.org/wiki/is_map_tools</url>
 
   <author email="kohlbrecher@sim.tu-darmstadt.de">Stefan Kohlbrecher</author>
 
