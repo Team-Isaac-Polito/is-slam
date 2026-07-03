@@ -26,18 +26,18 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
-#include <hector_geotiff/map_writer_interface.h>
-#include <hector_geotiff/map_writer_plugin_interface.h>
+#include <is_geotiff/map_writer_interface.h>
+#include <is_geotiff/map_writer_plugin_interface.h>
 
 #include <ros/ros.h>
-#include <hector_nav_msgs/GetRobotTrajectory.h>
+#include <is_nav_msgs/GetRobotTrajectory.h>
 
 #include <fstream>
 
-namespace hector_geotiff_plugins
+namespace is_geotiff_plugins
 {
 
-using namespace hector_geotiff;
+using namespace is_geotiff;
 
 class TrajectoryMapWriter : public MapWriterPluginInterface
 {
@@ -79,18 +79,18 @@ void TrajectoryMapWriter::initialize(const std::string& name)
   plugin_nh.param("path_color_g", path_color_g_, 0);
   plugin_nh.param("path_color_b", path_color_b_, 240);
 
-  service_client_ = nh_.serviceClient<hector_nav_msgs::GetRobotTrajectory>(service_name_);
+  service_client_ = nh_.serviceClient<is_nav_msgs::GetRobotTrajectory>(service_name_);
 
   initialized_ = true;
   this->name_ = name;
-  ROS_INFO_NAMED(name_, "Successfully initialized hector_geotiff MapWriter plugin %s.", name_.c_str());
+  ROS_INFO_NAMED(name_, "Successfully initialized is_geotiff MapWriter plugin %s.", name_.c_str());
 }
 
 void TrajectoryMapWriter::draw(MapWriterInterface *interface)
 {
     if(!initialized_) return;
 
-    hector_nav_msgs::GetRobotTrajectory srv_path;
+    is_nav_msgs::GetRobotTrajectory srv_path;
     if (!service_client_.call(srv_path)) {
       ROS_ERROR_NAMED(name_, "Cannot draw trajectory, service %s failed", service_client_.getService().c_str());
       return;
@@ -120,4 +120,4 @@ void TrajectoryMapWriter::draw(MapWriterInterface *interface)
 
 //register this planner as a MapWriterPluginInterface plugin
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(hector_geotiff_plugins::TrajectoryMapWriter, hector_geotiff::MapWriterPluginInterface)
+PLUGINLIB_EXPORT_CLASS(is_geotiff_plugins::TrajectoryMapWriter, is_geotiff::MapWriterPluginInterface)

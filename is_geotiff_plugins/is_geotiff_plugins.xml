@@ -1,0 +1,7 @@
+<library path="lib/libis_geotiff_plugins">
+  <class name="is_geotiff_plugins/TrajectoryMapWriter" type="is_geotiff_plugins::TrajectoryMapWriter" base_class_type="is_geotiff::MapWriterPluginInterface">
+    <description>
+      This is a MapWriter plugin that draws the robot's trajectory in the map.
+    </description>
+  </class>
+</library>
