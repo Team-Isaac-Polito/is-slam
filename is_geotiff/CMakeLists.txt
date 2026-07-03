@@ -21,7 +21,7 @@ find_package(Eigen3 REQUIRED)
 add_library(geotiff_writer src/geotiff_writer/geotiff_writer.cpp)
 target_include_directories(geotiff_writer PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include>"
   ${EIGEN3_INCLUDE_DIRS}
   ${Qt5Widgets_INCLUDE_DIRS}
 )
