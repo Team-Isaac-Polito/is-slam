@@ -49,7 +49,7 @@ target_link_libraries(geotiff_node geotiff_writer)
 
 # 1. Library geotiff_writer
 install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
+  DESTINATION include
 )
 install(TARGETS geotiff_writer
   EXPORT export_${PROJECT_NAME}
@@ -65,5 +65,9 @@ install(TARGETS geotiff_saver geotiff_node
 install(DIRECTORY fonts
   DESTINATION share/${PROJECT_NAME}
 )
+
+ament_export_include_directories(include)
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(is_map_tools is_nav_msgs nav_msgs pluginlib rclcpp std_msgs)
 
 ament_package()

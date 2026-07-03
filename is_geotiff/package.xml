@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>is_geotiff</name>
   <version>0.5.2</version>
   <description>
@@ -27,7 +27,7 @@
   <author email="luca.depaola@studenti.polito.it">Luca De Paola</author>
 
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
   <build_depend>qtbase5-dev</build_depend>
   <build_export_depend>qtbase5-dev</build_export_depend>
   <exec_depend>qt5-image-formats-plugins</exec_depend>

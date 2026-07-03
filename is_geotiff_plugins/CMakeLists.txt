@@ -1,44 +1,47 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(is_geotiff_plugins)
 
-find_package(catkin REQUIRED COMPONENTS is_geotiff is_nav_msgs)
+set(CMAKE_CXX_STANDARD 17)
 
-
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package(
-  CATKIN_DEPENDS is_geotiff is_nav_msgs
-)
+find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(is_geotiff REQUIRED)
+find_package(is_nav_msgs REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
 
 ###########
 ## Build ##
 ###########
 
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
-
 add_library(is_geotiff_plugins src/trajectory_geotiff_plugin.cpp)
-add_dependencies(is_geotiff_plugins ${catkin_EXPORTED_TARGETS})
-target_link_libraries(is_geotiff_plugins
-  ${catkin_LIBRARIES}
+ament_target_dependencies(is_geotiff_plugins
+  geometry_msgs
+  is_geotiff
+  is_nav_msgs
+  pluginlib
+  rclcpp
 )
 
 #############
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
 install(TARGETS is_geotiff_plugins
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(FILES
   is_geotiff_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
+
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(is_geotiff is_nav_msgs pluginlib)
+
+ament_package()

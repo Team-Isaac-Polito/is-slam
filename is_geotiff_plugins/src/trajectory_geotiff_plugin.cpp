@@ -26,13 +26,18 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //=================================================================================================
 
+// Modifications for ROS2 by Team ISAAC, Politecnico di Torino, 2026
+
 #include <is_geotiff/map_writer_interface.h>
 #include <is_geotiff/map_writer_plugin_interface.h>
 
-#include <ros/ros.h>
-#include <is_nav_msgs/GetRobotTrajectory.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <is_nav_msgs/srv/get_robot_trajectory.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include <fstream>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace is_geotiff_plugins
 {
@@ -43,19 +48,15 @@ class TrajectoryMapWriter : public MapWriterPluginInterface
 {
 public:
   TrajectoryMapWriter();
-  virtual ~TrajectoryMapWriter();
+  ~TrajectoryMapWriter() = default;
 
-  virtual void initialize(const std::string& name);
-  virtual void draw(MapWriterInterface *interface);
+  void initialize(const std::string& name) override;
+  void draw(MapWriterInterface *interface) override;
 
 protected:
-  ros::NodeHandle nh_;
-  ros::ServiceClient service_client_;
-
+  rclcpp::Node::SharedPtr node_;
+  rclcpp::Client<is_nav_msgs::srv::GetRobotTrajectory>::SharedPtr service_client_;
   bool initialized_;
-  std::string name_;
-  bool draw_all_objects_;
-  std::string class_id_;
   int path_color_r_;
   int path_color_g_;
   int path_color_b_;
@@ -65,38 +66,46 @@ TrajectoryMapWriter::TrajectoryMapWriter()
     : initialized_(false)
 {}
 
-TrajectoryMapWriter::~TrajectoryMapWriter()
-{}
-
 void TrajectoryMapWriter::initialize(const std::string& name)
 {
-  ros::NodeHandle plugin_nh("~/" + name);
-  std::string service_name_;
+  (void)name;
 
+  node_ = std::make_shared<rclcpp::Node>("trajectory_map_writer");
 
-  plugin_nh.param("service_name", service_name_, std::string("trajectory"));
-  plugin_nh.param("path_color_r", path_color_r_, 120);
-  plugin_nh.param("path_color_g", path_color_g_, 0);
-  plugin_nh.param("path_color_b", path_color_b_, 240);
+  std::string service_name;
+  node_->declare_parameter<std::string>("service_name", "trajectory");
+  node_->declare_parameter<int>("path_color_r", 120);
+  node_->declare_parameter<int>("path_color_g", 0);
+  node_->declare_parameter<int>("path_color_b", 240);
 
-  service_client_ = nh_.serviceClient<is_nav_msgs::GetRobotTrajectory>(service_name_);
+  node_->get_parameter("service_name", service_name);
+  node_->get_parameter("path_color_r", path_color_r_);
+  node_->get_parameter("path_color_g", path_color_g_);
+  node_->get_parameter("path_color_b", path_color_b_);
+
+  service_client_ = node_->create_client<is_nav_msgs::srv::GetRobotTrajectory>(service_name);
 
   initialized_ = true;
-  this->name_ = name;
-  ROS_INFO_NAMED(name_, "Successfully initialized is_geotiff MapWriter plugin %s.", name_.c_str());
+  RCLCPP_INFO(node_->get_logger(), "Successfully initialized is_geotiff MapWriter plugin %s.", name.c_str());
 }
 
 void TrajectoryMapWriter::draw(MapWriterInterface *interface)
 {
     if(!initialized_) return;
 
-    is_nav_msgs::GetRobotTrajectory srv_path;
-    if (!service_client_.call(srv_path)) {
-      ROS_ERROR_NAMED(name_, "Cannot draw trajectory, service %s failed", service_client_.getService().c_str());
+    if (!service_client_->wait_for_service(std::chrono::seconds(4))) {
+      RCLCPP_ERROR(node_->get_logger(), "Cannot draw trajectory, service %s unavailable", service_client_->get_service_name());
       return;
     }
 
-    std::vector<geometry_msgs::PoseStamped>& traj_vector (srv_path.response.trajectory.poses);
+    auto request = std::make_shared<is_nav_msgs::srv::GetRobotTrajectory::Request>();
+    auto future = service_client_->async_send_request(request);
+    if (rclcpp::spin_until_future_complete(node_->get_node_base_interface(), future) != rclcpp::FutureReturnCode::SUCCESS) {
+      RCLCPP_ERROR(node_->get_logger(), "Cannot draw trajectory, service %s failed", service_client_->get_service_name());
+      return;
+    }
+
+    const auto& traj_vector = future.get()->trajectory.poses;
 
     size_t size = traj_vector.size();
 
@@ -104,7 +113,7 @@ void TrajectoryMapWriter::draw(MapWriterInterface *interface)
     pointVec.resize(size);
 
     for (size_t i = 0; i < size; ++i){
-      const geometry_msgs::PoseStamped& pose (traj_vector[i]);
+      const geometry_msgs::msg::PoseStamped& pose (traj_vector[i]);
 
       pointVec[i] = Eigen::Vector2f(pose.pose.position.x, pose.pose.position.y);
     }
@@ -119,5 +128,5 @@ void TrajectoryMapWriter::draw(MapWriterInterface *interface)
 } // namespace
 
 //register this planner as a MapWriterPluginInterface plugin
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(is_geotiff_plugins::TrajectoryMapWriter, is_geotiff::MapWriterPluginInterface)
