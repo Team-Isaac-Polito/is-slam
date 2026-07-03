@@ -7,6 +7,7 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(is_geotiff REQUIRED)
 find_package(is_nav_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(pluginlib REQUIRED)
@@ -21,6 +22,7 @@ ament_target_dependencies(is_geotiff_plugins
   geometry_msgs
   is_geotiff
   is_nav_msgs
+  nav_msgs
   pluginlib
   rclcpp
 )
@@ -42,6 +44,6 @@ install(FILES
 )
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(is_geotiff is_nav_msgs pluginlib)
+ament_export_dependencies(is_geotiff is_nav_msgs nav_msgs pluginlib)
 
 ament_package()

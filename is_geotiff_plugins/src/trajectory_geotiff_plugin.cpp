@@ -32,8 +32,9 @@
 #include <is_geotiff/map_writer_plugin_interface.h>
 
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <is_nav_msgs/srv/get_robot_trajectory.hpp>
+#include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/wait_for_message.hpp>
 
 #include <memory>
 #include <string>
@@ -55,8 +56,8 @@ public:
 
 protected:
   rclcpp::Node::SharedPtr node_;
-  rclcpp::Client<is_nav_msgs::srv::GetRobotTrajectory>::SharedPtr service_client_;
   bool initialized_;
+  std::string trajectory_topic_;
   int path_color_r_;
   int path_color_g_;
   int path_color_b_;
@@ -72,18 +73,15 @@ void TrajectoryMapWriter::initialize(const std::string& name)
 
   node_ = std::make_shared<rclcpp::Node>("trajectory_map_writer");
 
-  std::string service_name;
-  node_->declare_parameter<std::string>("service_name", "trajectory");
+  node_->declare_parameter<std::string>("trajectory_topic", "trajectory");
   node_->declare_parameter<int>("path_color_r", 120);
   node_->declare_parameter<int>("path_color_g", 0);
   node_->declare_parameter<int>("path_color_b", 240);
 
-  node_->get_parameter("service_name", service_name);
+  node_->get_parameter("trajectory_topic", trajectory_topic_);
   node_->get_parameter("path_color_r", path_color_r_);
   node_->get_parameter("path_color_g", path_color_g_);
   node_->get_parameter("path_color_b", path_color_b_);
-
-  service_client_ = node_->create_client<is_nav_msgs::srv::GetRobotTrajectory>(service_name);
 
   initialized_ = true;
   RCLCPP_INFO(node_->get_logger(), "Successfully initialized is_geotiff MapWriter plugin %s.", name.c_str());
@@ -93,19 +91,15 @@ void TrajectoryMapWriter::draw(MapWriterInterface *interface)
 {
     if(!initialized_) return;
 
-    if (!service_client_->wait_for_service(std::chrono::seconds(4))) {
-      RCLCPP_ERROR(node_->get_logger(), "Cannot draw trajectory, service %s unavailable", service_client_->get_service_name());
+    nav_msgs::msg::Path trajectory_msg;
+    const bool received_trajectory = rclcpp::wait_for_message<nav_msgs::msg::Path>(
+      trajectory_msg, node_, trajectory_topic_, std::chrono::seconds(4));
+    if (!received_trajectory) {
+      RCLCPP_ERROR(node_->get_logger(), "Cannot draw trajectory, topic %s unavailable", trajectory_topic_.c_str());
       return;
     }
 
-    auto request = std::make_shared<is_nav_msgs::srv::GetRobotTrajectory::Request>();
-    auto future = service_client_->async_send_request(request);
-    if (rclcpp::spin_until_future_complete(node_->get_node_base_interface(), future) != rclcpp::FutureReturnCode::SUCCESS) {
-      RCLCPP_ERROR(node_->get_logger(), "Cannot draw trajectory, service %s failed", service_client_->get_service_name());
-      return;
-    }
-
-    const auto& traj_vector = future.get()->trajectory.poses;
+    const auto& traj_vector = trajectory_msg.poses;
 
     size_t size = traj_vector.size();
 
