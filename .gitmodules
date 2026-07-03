@@ -1,0 +1,4 @@
+[submodule "mogi_trajectory_server"]
+    path = mogi_trajectory_server
+    url = https://github.com/MOGI-ROS/mogi_trajectory_server.git
+    branch = main
