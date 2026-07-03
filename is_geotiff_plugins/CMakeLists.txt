@@ -8,6 +8,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(is_geotiff REQUIRED)
 find_package(is_nav_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(pluginlib REQUIRED)
@@ -19,6 +20,7 @@ find_package(rclcpp REQUIRED)
 
 add_library(is_geotiff_plugins SHARED src/trajectory_geotiff_plugin.cpp)
 ament_target_dependencies(is_geotiff_plugins
+  visualization_msgs
   geometry_msgs
   is_geotiff
   is_nav_msgs
