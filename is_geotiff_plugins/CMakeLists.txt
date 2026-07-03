@@ -17,7 +17,7 @@ find_package(rclcpp REQUIRED)
 ## Build ##
 ###########
 
-add_library(is_geotiff_plugins src/trajectory_geotiff_plugin.cpp)
+add_library(is_geotiff_plugins SHARED src/trajectory_geotiff_plugin.cpp)
 ament_target_dependencies(is_geotiff_plugins
   geometry_msgs
   is_geotiff
@@ -42,6 +42,8 @@ install(FILES
   is_geotiff_plugins.xml
   DESTINATION share/${PROJECT_NAME}
 )
+
+pluginlib_export_plugin_description_file(is_geotiff is_geotiff_plugins.xml)
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(is_geotiff is_nav_msgs nav_msgs pluginlib)

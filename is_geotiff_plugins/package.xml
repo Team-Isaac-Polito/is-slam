@@ -49,7 +49,7 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <build_type>ament_cmake</build_type>
-    <is_geotiff plugin="${prefix}/is_geotiff_plugins.xml" />
+    <pluginlib plugin="${prefix}/is_geotiff_plugins.xml" />
 
   </export>
 </package>
